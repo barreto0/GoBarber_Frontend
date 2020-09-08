@@ -11,7 +11,8 @@ import Button from '../../components/Button';
 import { Container, Content, Background } from './styles';
 import logo from '../../assets/logo.svg';
 import getValidationErrors from '../../utils/getValidationErrors';
-import { useAuth } from '../../hooks/AuthContext';
+import { useAuth } from '../../hooks/auth';
+import { useToast } from '../../hooks/toast';
 
 interface SignInFormData {
   email: string;
@@ -21,7 +22,8 @@ interface SignInFormData {
 const SignIn: React.FunctionComponent = () => {
   const formRef = useRef<FormHandles>(null);
 
-  const { user, signIn } = useAuth();
+  const { signIn } = useAuth();
+  const { addToast } = useToast();
 
   const handleSubmit = useCallback(
     async (data: SignInFormData) => {
@@ -39,7 +41,7 @@ const SignIn: React.FunctionComponent = () => {
           abortEarly: false,
         });
 
-        signIn({
+        await signIn({
           email: data.email,
           password: data.password,
         });
@@ -51,9 +53,14 @@ const SignIn: React.FunctionComponent = () => {
         }
 
         // disparar toast para notificar usuário
+        addToast({
+          type: 'error',
+          title: 'erro na autenticação',
+          description: 'ocorreu um erro ao fazer login',
+        });
       }
     },
-    [signIn],
+    [signIn, addToast],
   );
 
   return (
